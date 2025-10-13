@@ -1,12 +1,13 @@
 {
   "name": "event-check-in-v2",
-  "description": "Admin dashboard template built with Astro, shadcn/ui, and Cloudflare's developer stack",
+  "description": "Professional event check-in system built with Astro, React, and Cloudflare Workers",
   "private": true,
   "cloudflare": {
-    "label": "SaaS Admin Template",
+    "label": "Event Check-in System",
     "products": [
       "Workers",
-      "D1"
+      "D1",
+      "R2"
     ],
     "categories": [],
     "docs_url": "https://developers.cloudflare.com/workers/",
@@ -25,9 +26,11 @@
     "@radix-ui/react-navigation-menu": "1.2.9",
     "@radix-ui/react-slot": "1.2.0",
     "@tanstack/react-table": "8.21.3",
+    "@types/bcryptjs": "^2.4.6",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
     "astro": "5.10.1",
+    "bcryptjs": "^3.0.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "lucide-react": "0.525.0",
@@ -46,13 +49,12 @@
     "astro": "astro",
     "build": "astro build",
     "cf-typegen": "wrangler types",
-    "check": "npm run build && npm run wrangler:wrapper && wrangler deploy --dry-run",
+    "check": "npm run build && wrangler deploy --dry-run",
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
-    "deploy": "npm run wrangler:wrapper && wrangler deploy",
-    "dev": "npm run db:migrate && npm run build && npm run wrangler:wrapper && npx wrangler dev --port 4321",
+    "deploy": "npm run db:migrate:remote && wrangler deploy",
+    "dev": "npm run db:migrate && npm run build && npx wrangler dev --port 4321",
     "predeploy": "npm run db:migrate:remote",
-    "preview": "npm run build && npm run wrangler:wrapper && wrangler dev",
-    "wrangler:wrapper": "cp src/workflows/wrapper.js dist/index.js"
+    "preview": "npm run build && wrangler dev"
   }
 }

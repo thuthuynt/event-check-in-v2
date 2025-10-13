@@ -1,0 +1,20 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { LoginForm } from '@/components/auth/LoginForm';
+---
+
+<Layout title="Login">
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8">
+      <div>
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Event Check-in System
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+          Sign in to your account
+        </p>
+      </div>
+      <LoginForm client:only="react" />
+    </div>
+  </div>
+</Layout>

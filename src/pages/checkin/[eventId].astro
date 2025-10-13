@@ -1,0 +1,40 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { EventService } from '@/lib/services/event';
+import { ParticipantService } from '@/lib/services/participant';
+import { CheckInApp } from '@/components/checkin/CheckInApp';
+
+const { API_TOKEN, DB } = Astro.locals.runtime.env;
+const { eventId } = Astro.params;
+
+const eventService = new EventService(DB);
+const participantService = new ParticipantService(DB);
+
+const event = await eventService.getById(parseInt(eventId));
+const stats = await participantService.getStats(parseInt(eventId));
+---
+
+<Layout title={`Check-in: ${event?.event_name || 'Event'}`}>
+  {event ? (
+    <CheckInApp 
+      event={event} 
+      initialStats={stats}
+      apiToken={API_TOKEN}
+      client:only="react" 
+    />
+  ) : (
+    <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div class="text-center">
+        <div class="text-red-600 text-6xl mb-4">⚠️</div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h1>
+        <p class="text-gray-600 mb-4">The requested event could not be found.</p>
+        <button
+          onclick="window.location.href='/'"
+          class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+        >
+          Back to Events
+        </button>
+      </div>
+    </div>
+  )}
+</Layout>

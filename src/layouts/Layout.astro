@@ -2,10 +2,9 @@
 import '@/styles/globals.css'
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
-import ApiTokenMissingCard from '@/components/admin/api-token-missing-card';
 
 const currentPath = Astro.url.pathname;
-const title = Astro.props.title || 'SaaS Admin Template';
+const title = Astro.props.title || 'Event Check-in System';
 const { API_TOKEN } = Astro.locals.runtime.env;
 const apiTokenSet = API_TOKEN && API_TOKEN !== '';
 ---
@@ -33,23 +32,117 @@ const apiTokenSet = API_TOKEN && API_TOKEN !== '';
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title ? `${title} - SaaS Admin Template` : 'SaaS Admin Template'}</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Event Check-in" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/ducklytics-logo.png" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    
+    <title>{title ? `${title} - Event Check-in System` : 'Event Check-in System'}</title>
   </head>
-  <body>
+  <body class="min-h-screen flex flex-col">
     <Header currentPath={currentPath} />
-    <div class="flex-1 space-y-4 p-8 pt-6">
-      <div class="mb-4">
-        {!apiTokenSet && <ApiTokenMissingCard />}
+    <main class="flex-1 container mx-auto px-4 py-6 max-w-7xl">
+      <div class="space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+            {title}
+          </h1>
+          <div class="flex-shrink-0">
+            <slot name="actions" />
+          </div>
+        </div>
+        <slot />
       </div>
-      <div class="flex items-center justify-between">
-        <h2 class="text-3xl font-bold tracking-tight">{title}</h2>
-        <slot name="actions" />
-      </div>
-      <slot />
-    </div>
+    </main>
   </body>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+            
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New content is available, show update notification
+                    if (confirm('New version available! Reload to update?')) {
+                      window.location.reload();
+                    }
+                  }
+                });
+              }
+            });
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    
+    // PWA Install Prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Show install button or notification
+      const installButton = document.createElement('button');
+      installButton.textContent = 'Install App';
+      installButton.className = 'fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 btn-responsive';
+      installButton.onclick = () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          }
+          deferredPrompt = null;
+          installButton.remove();
+        });
+      };
+      
+      // Only show install button on mobile
+      if (window.innerWidth <= 768) {
+        document.body.appendChild(installButton);
+        
+        // Auto-hide after 10 seconds
+        setTimeout(() => {
+          if (installButton.parentNode) {
+            installButton.remove();
+          }
+        }, 10000);
+      }
+    });
+    
+    // Track PWA install
+    window.addEventListener('appinstalled', (evt) => {
+      console.log('PWA was installed');
+    });
+  </script>
 </html>
 
