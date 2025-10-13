@@ -49,10 +49,12 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isCheckedIn = !!participant.checkin_at;
 
+  useEffect(() => {}, []);
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {

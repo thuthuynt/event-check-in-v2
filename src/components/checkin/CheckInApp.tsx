@@ -314,12 +314,12 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
                             <div className="flex items-center space-x-2">
                               {participant.phone && (
                                 <span className="text-xs text-gray-500">
-                                  📞 {participant.phone}
+                                  {participant.phone}
                                 </span>
                               )}
                               {participant.email && (
                                 <span className="text-xs text-gray-500">
-                                  ✉️ {participant.email}
+                                  {participant.email}
                                 </span>
                               )}
                             </div>
@@ -327,23 +327,25 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
                             {/* ID */}
                             {participant.id_card_passport && (
                               <p className="text-xs text-gray-400">
-                                🆔 {participant.id_card_passport}
+                                {participant.id_card_passport}
                               </p>
                             )}
+                            
+                            {/* Status */}
+                            <div className="mt-1">
+                              {participant.checkin_at ? (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  ✓ Checked In
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                  Pending
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex-shrink-0 ml-4">
-                      {participant.checkin_at ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          ✓ Checked In
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          Pending
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>

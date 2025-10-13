@@ -30,6 +30,10 @@
     {
       "pattern": "app.ducklytics.com/*",
       "zone_name": "ducklytics.com"
+    },
+    {
+      "pattern": "check-in.ducklytics.com/*",
+      "zone_name": "ducklytics.com"
     }
   ]
 }

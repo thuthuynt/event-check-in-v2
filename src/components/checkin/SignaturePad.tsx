@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import SignaturePadCore from '../../../signature_pad-master/src/signature_pad';
 
 interface SignaturePadProps {
   onCapture: (signatureData: string) => void;
@@ -7,15 +8,25 @@ interface SignaturePadProps {
 interface Point {
   x: number;
   y: number;
+  time: number; // ms
+  velocity?: number; // px/ms
+  pressure?: number; // 0..1
 }
 
 export function SignaturePad({ onCapture }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const coreRef = useRef<any>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastPoint, setLastPoint] = useState<Point | null>(null);
   const [paths, setPaths] = useState<Point[][]>([]);
+
+  // Config inspired by signature_pad
+  const minWidth = 0.8; // px
+  const maxWidth = 3.5; // px
+  const velocityFilterWeight = 0.7; // smoothing weight
+  const minDistance = 2; // px between points before drawing
 
   // Initialize canvas
   const initializeCanvas = useCallback(() => {
@@ -36,16 +47,16 @@ export function SignaturePad({ onCapture }: SignaturePadProps) {
     canvas.style.width = rect.width + 'px';
     canvas.style.height = rect.height + 'px';
 
-    // Set drawing styles for better signature experience
-    context.strokeStyle = '#1f2937'; // Darker color for better visibility
-    context.lineWidth = 3; // Thicker lines
-    context.lineCap = 'round';
-    context.lineJoin = 'round';
-    context.shadowColor = 'rgba(0, 0, 0, 0.1)';
-    context.shadowBlur = 2;
-
-    // Clear canvas
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    // Instantiate vendored SignaturePad core (handles events + drawing)
+    coreRef.current = new SignaturePadCore(canvas, {
+      minWidth,
+      maxWidth,
+      velocityFilterWeight,
+      minDistance,
+      penColor: '#1f2937',
+      backgroundColor: 'rgba(255,255,255,0)'
+    });
+    coreRef.current.addEventListener('beginStroke', () => setHasSignature(true));
   }, []);
 
   useEffect(() => {
@@ -60,71 +71,30 @@ export function SignaturePad({ onCapture }: SignaturePadProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, [initializeCanvas]);
 
-  const getPointFromEvent = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>): Point => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-
+  const scaleToCanvas = (clientX: number, clientY: number): { x: number; y: number } => {
+    const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-
     return {
       x: (clientX - rect.left) * (canvas.width / rect.width),
-      y: (clientY - rect.top) * (canvas.height / rect.height)
+      y: (clientY - rect.top) * (canvas.height / rect.height),
     };
   };
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    setIsDrawing(true);
-    setHasSignature(true);
-    
-    const point = getPointFromEvent(e);
-    setLastPoint(point);
-    
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    context.beginPath();
-    context.moveTo(point.x, point.y);
-    
-    // Start a new path
-    setPaths(prev => [...prev, [point]]);
+  const computeWidthFromVelocity = (velocity: number, pressure?: number) => {
+    // Lower velocity => thicker line. Clamp velocity to avoid spikes.
+    const clamped = Math.max(0, Math.min(velocity, 5));
+    const width = maxWidth - (clamped / 5) * (maxWidth - minWidth);
+    // If pressure is available, blend it in (weight 0.5)
+    if (pressure !== undefined && !Number.isNaN(pressure)) {
+      const pressureWidth = minWidth + pressure * (maxWidth - minWidth);
+      return (width + pressureWidth) / 2;
+    }
+    return width;
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !lastPoint) return;
+  const startDrawing = (_e: React.PointerEvent<HTMLCanvasElement>) => {};
 
-    e.preventDefault();
-    
-    const point = getPointFromEvent(e);
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    // Draw smooth curves
-    const midX = (lastPoint.x + point.x) / 2;
-    const midY = (lastPoint.y + point.y) / 2;
-    
-    context.quadraticCurveTo(lastPoint.x, lastPoint.y, midX, midY);
-    context.stroke();
-
-    setLastPoint(point);
-    
-    // Update current path
-    setPaths(prev => {
-      const newPaths = [...prev];
-      if (newPaths.length > 0) {
-        newPaths[newPaths.length - 1] = [...newPaths[newPaths.length - 1], point];
-      }
-      return newPaths;
-    });
-  };
+  const draw = (_e: React.PointerEvent<HTMLCanvasElement>) => {};
 
   const stopDrawing = () => {
     setIsDrawing(false);
@@ -132,13 +102,7 @@ export function SignaturePad({ onCapture }: SignaturePadProps) {
   };
 
   const clearSignature = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    coreRef.current?.clear();
     setHasSignature(false);
     setPaths([]);
   };
@@ -149,13 +113,7 @@ export function SignaturePad({ onCapture }: SignaturePadProps) {
     setIsProcessing(true);
     
     try {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      // Add a small delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const signatureData = canvas.toDataURL('image/png');
+      const signatureData = coreRef.current?.toDataURL('image/png');
       onCapture(signatureData);
     } finally {
       setIsProcessing(false);
@@ -213,13 +171,6 @@ export function SignaturePad({ onCapture }: SignaturePadProps) {
           <canvas
             ref={canvasRef}
             className="w-full h-40 sm:h-48 cursor-crosshair touch-none bg-white rounded-lg shadow-inner"
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseLeave={stopDrawing}
-            onTouchStart={startDrawing}
-            onTouchMove={draw}
-            onTouchEnd={stopDrawing}
             style={{ touchAction: 'none' }}
           />
           
@@ -249,30 +200,17 @@ export function SignaturePad({ onCapture }: SignaturePadProps) {
 
       {/* Action Buttons */}
       <div className="space-y-3">
-        {/* Primary Actions */}
-        <div className="flex space-x-3">
-          <button
-            onClick={undoLastStroke}
-            disabled={!hasSignature || paths.length === 0}
-            className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-            </svg>
-            Undo
-          </button>
-          
-          <button
-            onClick={clearSignature}
-            disabled={!hasSignature}
-            className="flex-1 bg-red-100 text-red-700 py-3 px-4 rounded-lg font-medium hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Clear All
-          </button>
-        </div>
+        {/* Clear Button */}
+        <button
+          onClick={clearSignature}
+          disabled={!hasSignature}
+          className="w-full bg-red-100 text-red-700 py-3 px-4 rounded-lg font-medium hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Clear All
+        </button>
 
         {/* Confirm Button */}
         <button
@@ -297,13 +235,6 @@ export function SignaturePad({ onCapture }: SignaturePadProps) {
             </>
           )}
         </button>
-      </div>
-
-      {/* Help Text */}
-      <div className="text-center">
-        <p className="text-xs text-gray-500">
-          💡 Tip: Sign naturally - the system will smooth your strokes
-        </p>
       </div>
     </div>
   );
