@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import SignaturePad from 'signature_pad';
+import { SignaturePad } from './SignaturePad';
 
 interface Participant {
   id: number;
@@ -49,24 +49,9 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   
-  const signaturePadRef = useRef<SignaturePad | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isCheckedIn = !!participant.checkin_at;
-
-  useEffect(() => {
-    if (canvasRef.current) {
-      signaturePadRef.current = new SignaturePad(canvasRef.current, {
-        backgroundColor: 'rgba(255, 255, 255, 0)',
-        penColor: 'rgb(0, 0, 0)',
-        minWidth: 1,
-        maxWidth: 3,
-        throttle: 16,
-        minDistance: 5,
-      });
-    }
-  }, []);
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -94,17 +79,11 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
   };
 
   const clearSignature = () => {
-    if (signaturePadRef.current) {
-      signaturePadRef.current.clear();
-      setSignature(null);
-    }
+    setSignature(null);
   };
 
-  const saveSignature = () => {
-    if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
-      const signatureDataUrl = signaturePadRef.current.toDataURL('image/png');
-      setSignature(signatureDataUrl);
-    }
+  const handleSignatureCapture = (signatureData: string) => {
+    setSignature(signatureData);
   };
 
   const handleCheckIn = async () => {
@@ -397,35 +376,12 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
 
             {/* Signature */}
             <div className="bg-white rounded-lg shadow-sm border p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Digital Signature</h3>
-              <div className="space-y-3">
-                <div className="border-2 border-gray-300 rounded-lg">
-                  <canvas
-                    ref={canvasRef}
-                    className="w-full h-48 touch-none"
-                    style={{ touchAction: 'none' }}
-                  />
+              <SignaturePad onCapture={handleSignatureCapture} />
+              {signature && (
+                <div className="text-center mt-3">
+                  <p className="text-sm text-green-600">✓ Signature captured</p>
                 </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={clearSignature}
-                    className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  >
-                    Clear
-                  </button>
-                  <button
-                    onClick={saveSignature}
-                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    Save Signature
-                  </button>
-                </div>
-                {signature && (
-                  <div className="text-center">
-                    <p className="text-sm text-green-600">✓ Signature saved</p>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
 
             {/* Error Message */}
