@@ -410,7 +410,7 @@ function CreateEventModal({ onClose, onSuccess, apiToken }: CreateEventModalProp
                 type="file"
                 id="participants_file"
                 name="participants_file"
-                accept=".csv"
+                accept=".csv,.xlsx"
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={handleFileChange}
@@ -424,7 +424,7 @@ function CreateEventModal({ onClose, onSuccess, apiToken }: CreateEventModalProp
                 >
                   HERE
                 </a>
-                {' '}and fill it with participant data. Upload is required to create an event.
+                {' '}and fill it with participant data. Upload CSV or Excel (.xlsx) file is required to create an event.
               </p>
             </div>
 
