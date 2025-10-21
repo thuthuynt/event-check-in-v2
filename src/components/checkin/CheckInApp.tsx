@@ -70,6 +70,7 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   
   const participantsPerPage = 10;
 
@@ -205,6 +206,15 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
               </p>
             </div>
             <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md"
+                title="Create New Participant"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
               <button
                 onClick={() => window.location.href = `/stats/${event.id}`}
                 className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
@@ -382,6 +392,19 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
           </div>
         )}
       </div>
+
+      {/* Create Participant Modal */}
+      {showCreateModal && (
+        <CreateParticipantModal
+          eventId={event.id}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => {
+            setShowCreateModal(false);
+            loadAllParticipants(); // Refresh the participant list
+            loadStats(); // Refresh stats
+          }}
+        />
+      )}
     </div>
   );
 }
