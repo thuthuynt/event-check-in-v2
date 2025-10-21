@@ -22,16 +22,14 @@ export async function GET({ locals, request, url }) {
     const participantService = new ParticipantService(DB);
     
     // Get all participants for the event
-    const result = await participantService.search(parseInt(eventId), '', 1, 10000); // Get all participants
+    const participants = await participantService.getByEvent(parseInt(eventId));
     
-    if (!result.success) {
+    if (!participants) {
       return Response.json(
         { message: "Failed to fetch participants" },
         { status: 500 }
       );
     }
-
-    const participants = result.participants;
 
     if (format === 'excel') {
       // Create Excel file

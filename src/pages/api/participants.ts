@@ -105,11 +105,14 @@ export async function POST({ locals, request }) {
           const photoBuffer = Buffer.from(photoData, 'base64');
           const photoKey = `runner-photos/event_${participantData.event_id}_bib_${participantData.bib_no}_${Date.now()}.jpg`;
           
-          const { "runner-images": RUNNER_IMAGES } = locals.runtime.env;
+          const RUNNER_IMAGES = locals.runtime.env["runner-images"];
           await RUNNER_IMAGES.put(photoKey, photoBuffer, {
-            httpMetadata: {
-              contentType: 'image/jpeg',
-            },
+            contentType: 'image/jpeg',
+            metadata: {
+              participant_id: result.participantId.toString(),
+              type: 'participant_photo',
+              uploaded_at: new Date().toISOString()
+            }
           });
           photoUrl = photoKey;
         }
@@ -121,21 +124,24 @@ export async function POST({ locals, request }) {
           const signatureBuffer = Buffer.from(signatureData, 'base64');
           const signatureKey = `runner-signatures/event_${participantData.event_id}_bib_${participantData.bib_no}_${Date.now()}.png`;
           
-          const { "runner-images": RUNNER_IMAGES } = locals.runtime.env;
+          const RUNNER_IMAGES = locals.runtime.env["runner-images"];
           await RUNNER_IMAGES.put(signatureKey, signatureBuffer, {
-            httpMetadata: {
-              contentType: 'image/png',
-            },
+            contentType: 'image/png',
+            metadata: {
+              participant_id: result.participantId.toString(),
+              type: 'participant_signature',
+              uploaded_at: new Date().toISOString()
+            }
           });
           signatureUrl = signatureKey;
         }
 
       // Update participant with check-in data
-      const checkInResult = await participantService.checkInParticipant(result.participantId, {
-        uploaded_image_url: photoUrl,
-        signature_url: signatureUrl,
+      const checkInResult = await participantService.updateCheckIn(result.participantId, {
         checkin_by: 'admin',
-        note: 'Manually created and checked in via mobile app'
+        note: 'Manually created and checked in via mobile app',
+        uploaded_image_url: photoUrl,
+        signature_url: signatureUrl
       });
 
         if (!checkInResult.success) {

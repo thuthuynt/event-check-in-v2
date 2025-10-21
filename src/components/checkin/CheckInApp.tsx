@@ -161,7 +161,7 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
         return;
       }
 
-      const response = await fetch(`/api/participants/export?event_id=${event.id}&format=${format}`, {
+      const response = await fetch(`/api/export-participants?event_id=${event.id}&format=${format}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
