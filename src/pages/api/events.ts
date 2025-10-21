@@ -108,6 +108,13 @@ function mapCsvRowToParticipant(headers: string[], values: string[], eventId: nu
       case 'participant_id':
         participantData.participant_id = value;
         break;
+      case 'category':
+        participantData.category = value;
+        break;
+      case 'age_group':
+      case 'age group':
+        participantData.age_group = value;
+        break;
     }
   });
 

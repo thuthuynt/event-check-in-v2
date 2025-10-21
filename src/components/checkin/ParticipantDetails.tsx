@@ -200,37 +200,37 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
         {isCheckedIn && (participant.uploaded_image_url || participant.signature_url) && (
           <div className="bg-white rounded-lg shadow-sm border p-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Check-in Documentation</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {participant.uploaded_image_url && (
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Photo</h4>
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <div className="flex flex-col items-center space-y-4">
+              {participant.signature_url && (
+                <div className="w-full max-w-md">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2 text-center">Signature</h4>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
                     <img 
-                      src={`/api/images/${encodeURIComponent(participant.uploaded_image_url)}`}
-                      alt="Participant check-in photo" 
-                      className="w-full h-48 object-cover"
-                      onLoad={() => console.log("Image loaded successfully:", participant.uploaded_image_url)}
+                      src={`/api/images/${encodeURIComponent(participant.signature_url)}`}
+                      alt="Participant signature" 
+                      className="w-full h-32 object-contain"
+                      onLoad={() => console.log("Signature loaded successfully:", participant.signature_url)}
                       onError={(e) => {
-                        console.error("Failed to load image:", participant.uploaded_image_url);
-                        console.error("Constructed URL:", `/api/images/${encodeURIComponent(participant.uploaded_image_url)}`);
+                        console.error("Failed to load signature:", participant.signature_url);
+                        console.error("Constructed URL:", `/api/images/${encodeURIComponent(participant.signature_url)}`);
                         e.currentTarget.style.display = 'none';
                       }}
                     />
                   </div>
                 </div>
               )}
-              {participant.signature_url && (
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Signature</h4>
-                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+              {participant.uploaded_image_url && (
+                <div className="w-full max-w-sm">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2 text-center">Photo</h4>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <img 
-                      src={`/api/images/${encodeURIComponent(participant.signature_url)}`}
-                      alt="Participant signature" 
-                      className="w-full h-48 object-contain"
-                      onLoad={() => console.log("Signature loaded successfully:", participant.signature_url)}
+                      src={`/api/images/${encodeURIComponent(participant.uploaded_image_url)}`}
+                      alt="Participant check-in photo" 
+                      className="w-full aspect-[3/4] object-cover"
+                      onLoad={() => console.log("Image loaded successfully:", participant.uploaded_image_url)}
                       onError={(e) => {
-                        console.error("Failed to load signature:", participant.signature_url);
-                        console.error("Constructed URL:", `/api/images/${encodeURIComponent(participant.signature_url)}`);
+                        console.error("Failed to load image:", participant.uploaded_image_url);
+                        console.error("Constructed URL:", `/api/images/${encodeURIComponent(participant.uploaded_image_url)}`);
                         e.currentTarget.style.display = 'none';
                       }}
                     />

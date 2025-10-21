@@ -3,6 +3,7 @@ import { SearchComponent } from './SearchComponent';
 import { StatsPanel } from './StatsPanel';
 import { CheckInProcess } from './CheckInProcess';
 import { ParticipantDetails } from './ParticipantDetails';
+import { CreateParticipantModal } from './CreateParticipantModal';
 
 interface Event {
   id: number;
@@ -17,6 +18,8 @@ interface Participant {
   participant_id: string;
   start_time: string;
   bib_no: string;
+  category: string;
+  age_group: string;
   id_card_passport: string;
   last_name: string;
   first_name: string;
@@ -304,7 +307,7 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
                                 {participant.full_name || `${participant.first_name} ${participant.last_name}`}
                               </p>
                               {participant.name_on_bib && participant.name_on_bib !== participant.full_name && (
-                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                <span className="text-xs text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
                                   "{participant.name_on_bib}"
                                 </span>
                               )}
@@ -313,12 +316,12 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
                             {/* Phone and Email */}
                             <div className="flex items-center space-x-2">
                               {participant.phone && (
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-900">
                                   {participant.phone}
                                 </span>
                               )}
                               {participant.email && (
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-900">
                                   {participant.email}
                                 </span>
                               )}
@@ -326,7 +329,7 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
                             
                             {/* ID */}
                             {participant.id_card_passport && (
-                              <p className="text-xs text-gray-400">
+                              <p className="text-xs text-gray-900">
                                 {participant.id_card_passport}
                               </p>
                             )}
