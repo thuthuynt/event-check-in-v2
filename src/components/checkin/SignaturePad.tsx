@@ -161,7 +161,7 @@ export function SignaturePad({ onCapture }: SignaturePadProps) {
       <div className="text-center">
         <h4 className="text-lg font-semibold text-gray-900 mb-2">Digital Signature</h4>
         <p className="text-sm text-gray-600">
-          Please sign in the box below using your finger or mouse
+          By signing this form, you agree to the terms and conditions of the event.
         </p>
       </div>
 
