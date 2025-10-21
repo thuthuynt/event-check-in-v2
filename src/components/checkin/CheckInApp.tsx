@@ -153,6 +153,40 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
     window.location.href = '/login';
   };
 
+  const handleExport = async (format: 'csv' | 'excel') => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Authentication token not found. Please log in again.');
+        return;
+      }
+
+      const response = await fetch(`/api/participants/export?event_id=${event.id}&format=${format}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `participants_event_${event.id}.${format === 'excel' ? 'xlsx' : 'csv'}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to export participants');
+      }
+    } catch (err) {
+      console.error('Export error:', err);
+      setError('Network error or server unreachable.');
+    }
+  };
+
   // Get current participants to display
   const getCurrentParticipants = () => {
     if (searchQuery.length >= 2) {
@@ -224,6 +258,32 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </button>
+              <div className="relative group">
+                <button
+                  className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md"
+                  title="Export Data"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleExport('csv')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Export to CSV
+                    </button>
+                    <button
+                      onClick={() => handleExport('excel')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Export to Excel
+                    </button>
+                  </div>
+                </div>
+              </div>
               <button
                 onClick={handleLogout}
                 className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md"
