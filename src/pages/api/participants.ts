@@ -73,6 +73,7 @@ export async function POST({ locals, request }) {
       parent_relationship: parent_relationship || '',
       full_name: full_name || `${first_name || ''} ${last_name || ''}`.trim(),
       name_on_bib: name_on_bib || full_name || `${first_name || ''} ${last_name || ''}`.trim(),
+      note: 'Manually created'
     };
 
     // Ensure required fields have defaults
@@ -129,13 +130,13 @@ export async function POST({ locals, request }) {
           signatureUrl = signatureKey;
         }
 
-        // Update participant with check-in data
-        const checkInResult = await participantService.checkInParticipant(result.participantId, {
-          uploaded_image_url: photoUrl,
-          signature_url: signatureUrl,
-          checkin_by: 'admin',
-          note: 'Created and checked in via mobile app'
-        });
+      // Update participant with check-in data
+      const checkInResult = await participantService.checkInParticipant(result.participantId, {
+        uploaded_image_url: photoUrl,
+        signature_url: signatureUrl,
+        checkin_by: 'admin',
+        note: 'Manually created and checked in via mobile app'
+      });
 
         if (!checkInResult.success) {
           console.error("Failed to check in participant:", checkInResult.message);
