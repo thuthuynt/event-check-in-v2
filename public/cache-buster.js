@@ -81,52 +81,9 @@
     });
   }
   
-  // Add manual refresh button
+  // Floating refresh button removed - using header button instead
   function addRefreshButton() {
-    // Detect mobile/tablet devices (including iPad)
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                     window.innerWidth <= 1024 || 
-                     ('ontouchstart' in window);
-    
-    if (isMobile) {
-      const refreshButton = document.createElement('button');
-      refreshButton.innerHTML = '🔄';
-      refreshButton.title = 'Refresh App';
-      refreshButton.className = 'fixed top-4 right-4 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg z-50 flex items-center justify-center text-xl hover:bg-blue-700 transition-colors';
-      refreshButton.onclick = function() {
-        localStorage.setItem(FORCE_REFRESH_KEY, 'true');
-        clearAllCaches();
-      };
-      
-      document.body.appendChild(refreshButton);
-      
-      // Auto-hide after 15 seconds (longer for tablets)
-      setTimeout(function() {
-        if (refreshButton.parentNode) {
-          refreshButton.remove();
-        }
-      }, 15000);
-      
-      // Add a more prominent refresh option for tablets
-      if (window.innerWidth > 768 && window.innerWidth <= 1024) {
-        const tabletRefresh = document.createElement('div');
-        tabletRefresh.innerHTML = '🔄 Refresh App';
-        tabletRefresh.className = 'fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm font-medium hover:bg-blue-700 transition-colors cursor-pointer';
-        tabletRefresh.onclick = function() {
-          localStorage.setItem(FORCE_REFRESH_KEY, 'true');
-          clearAllCaches();
-        };
-        
-        document.body.appendChild(tabletRefresh);
-        
-        // Auto-hide after 20 seconds
-        setTimeout(function() {
-          if (tabletRefresh.parentNode) {
-            tabletRefresh.remove();
-          }
-        }, 20000);
-      }
-    }
+    // No floating buttons - header refresh button handles this
   }
   
   // Initialize when DOM is ready

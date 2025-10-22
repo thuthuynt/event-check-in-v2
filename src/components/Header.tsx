@@ -48,10 +48,28 @@ export function Header({ currentPath }: { currentPath: string }) {
             {/* Refresh Button for Mobile/Tablet */}
             <button
               onClick={() => {
-                if (typeof window !== 'undefined' && window.cacheBuster) {
-                  window.cacheBuster.forceRefresh();
-                } else {
-                  window.location.reload(true);
+                // Clear all caches and force refresh
+                if (typeof window !== 'undefined') {
+                  // Clear localStorage cache version
+                  localStorage.removeItem('app_cache_version');
+                  localStorage.setItem('force_refresh', 'true');
+                  
+                  // Clear service worker caches
+                  if ('caches' in window) {
+                    caches.keys().then(function(cacheNames) {
+                      return Promise.all(
+                        cacheNames.map(function(cacheName) {
+                          return caches.delete(cacheName);
+                        })
+                      );
+                    }).then(function() {
+                      // Reload the page after clearing caches
+                      window.location.reload(true);
+                    });
+                  } else {
+                    // Fallback: just reload
+                    window.location.reload(true);
+                  }
                 }
               }}
               className="touch-target p-2 rounded-md text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
