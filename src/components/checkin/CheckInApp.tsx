@@ -118,7 +118,9 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
   };
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
+    // Ensure query is always a string and handle null/undefined
+    const safeQuery = query || '';
+    setSearchQuery(safeQuery);
     setCurrentPage(1); // Reset to first page when searching
   };
 
@@ -189,23 +191,33 @@ export function CheckInApp({ event, initialStats, apiToken }: CheckInAppProps) {
 
   // Get current participants to display
   const getCurrentParticipants = () => {
-    if (searchQuery.length >= 2) {
+    if (!searchQuery || searchQuery.length < 2) {
+      return allParticipants;
+    }
+    
+    try {
       // Filter allParticipants based on search query
       return allParticipants.filter(participant => {
-        const searchTerm = searchQuery.toLowerCase();
+        if (!participant) return false;
+        
+        const searchTerm = searchQuery.toLowerCase().trim();
+        if (!searchTerm) return true;
+        
         return (
-          participant.bib_no.toLowerCase().includes(searchTerm) ||
-          participant.first_name.toLowerCase().includes(searchTerm) ||
-          participant.last_name.toLowerCase().includes(searchTerm) ||
-          participant.full_name.toLowerCase().includes(searchTerm) ||
-          participant.name_on_bib.toLowerCase().includes(searchTerm) ||
-          participant.phone.toLowerCase().includes(searchTerm) ||
-          participant.email.toLowerCase().includes(searchTerm) ||
-          participant.id_card_passport.toLowerCase().includes(searchTerm)
+          (participant.bib_no?.toLowerCase() || '').includes(searchTerm) ||
+          (participant.first_name?.toLowerCase() || '').includes(searchTerm) ||
+          (participant.last_name?.toLowerCase() || '').includes(searchTerm) ||
+          (participant.full_name?.toLowerCase() || '').includes(searchTerm) ||
+          (participant.name_on_bib?.toLowerCase() || '').includes(searchTerm) ||
+          (participant.phone?.toLowerCase() || '').includes(searchTerm) ||
+          (participant.email?.toLowerCase() || '').includes(searchTerm) ||
+          (participant.id_card_passport?.toLowerCase() || '').includes(searchTerm)
         );
       });
+    } catch (error) {
+      console.error('Error filtering participants:', error);
+      return allParticipants;
     }
-    return allParticipants;
   };
 
   const totalParticipants = getCurrentParticipants().length;
