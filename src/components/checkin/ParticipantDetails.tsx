@@ -203,7 +203,7 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
             <div className="flex flex-col items-center space-y-4">
               {participant.signature_url && (
                 <div className="w-full max-w-md">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2 text-center">Signature</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2 text-center">Signature</h4>
                   <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
                     <img 
                       src={`/api/images/${encodeURIComponent(participant.signature_url)}`}
@@ -221,7 +221,7 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
               )}
               {participant.uploaded_image_url && (
                 <div className="w-full max-w-sm">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2 text-center">Photo</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2 text-center">Photo</h4>
                   <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <img 
                       src={`/api/images/${encodeURIComponent(participant.uploaded_image_url)}`}
@@ -246,20 +246,20 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Race Information</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-gray-500">Bib Number:</span>
-              <span className="ml-2 font-medium">{participant.bib_no}</span>
+              <span className="text-gray-700 font-medium">Bib Number:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.bib_no}</span>
             </div>
             <div>
-              <span className="text-gray-500">T-shirt Size:</span>
-              <span className="ml-2 font-medium">{participant.tshirt_size || 'Not provided'}</span>
+              <span className="text-gray-700 font-medium">T-shirt Size:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.tshirt_size || 'Not provided'}</span>
             </div>
             <div>
-              <span className="text-gray-500">Start Time:</span>
-              <span className="ml-2 font-medium">{participant.start_time || 'Not set'}</span>
+              <span className="text-gray-700 font-medium">Start Time:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.start_time || 'Not set'}</span>
             </div>
             <div>
-              <span className="text-gray-500">Name on Bib:</span>
-              <span className="ml-2 font-medium">{participant.name_on_bib || participant.full_name}</span>
+              <span className="text-gray-700 font-medium">Name on Bib:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.name_on_bib || participant.full_name}</span>
             </div>
           </div>
         </div>
@@ -269,24 +269,24 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-gray-500">Phone:</span>
-              <span className="ml-2 font-medium">{participant.phone || 'Not provided'}</span>
+              <span className="text-gray-700 font-medium">Phone:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.phone || 'Not provided'}</span>
             </div>
             <div>
-              <span className="text-gray-500">Email:</span>
-              <span className="ml-2 font-medium">{participant.email || 'Not provided'}</span>
+              <span className="text-gray-700 font-medium">Email:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.email || 'Not provided'}</span>
             </div>
             <div>
-              <span className="text-gray-500">ID/Passport:</span>
-              <span className="ml-2 font-medium">{participant.id_card_passport || 'Not provided'}</span>
+              <span className="text-gray-700 font-medium">ID/Passport:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.id_card_passport || 'Not provided'}</span>
             </div>
             <div>
-              <span className="text-gray-500">Birth Year:</span>
-              <span className="ml-2 font-medium">{participant.birthday_year || 'Not provided'}</span>
+              <span className="text-gray-700 font-medium">Birth Year:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.birthday_year || 'Not provided'}</span>
             </div>
             <div>
-              <span className="text-gray-500">Nationality:</span>
-              <span className="ml-2 font-medium">{participant.nationality || 'Not provided'}</span>
+              <span className="text-gray-700 font-medium">Nationality:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.nationality || 'Not provided'}</span>
             </div>
           </div>
         </div>
@@ -296,12 +296,12 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Emergency Contact</h3>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-gray-500">Contact Name:</span>
-              <span className="ml-2 font-medium">{participant.emergency_contact_name || 'Not provided'}</span>
+              <span className="text-gray-700 font-medium">Contact Name:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.emergency_contact_name || 'Not provided'}</span>
             </div>
             <div>
-              <span className="text-gray-500">Contact Phone:</span>
-              <span className="ml-2 font-medium">{participant.emergency_contact_phone || 'Not provided'}</span>
+              <span className="text-gray-700 font-medium">Contact Phone:</span>
+              <span className="ml-2 text-gray-900 font-semibold">{participant.emergency_contact_phone || 'Not provided'}</span>
             </div>
           </div>
         </div>
@@ -313,20 +313,20 @@ export function ParticipantDetails({ participant, onStartCheckIn, onBack }: Part
             <div className="space-y-2 text-sm">
               {participant.blood_type && (
                 <div>
-                  <span className="text-gray-500">Blood Type:</span>
-                  <span className="ml-2 font-medium">{participant.blood_type}</span>
+                  <span className="text-gray-700 font-medium">Blood Type:</span>
+                  <span className="ml-2 text-gray-900 font-semibold">{participant.blood_type}</span>
                 </div>
               )}
               {participant.medical_information && (
                 <div>
-                  <span className="text-gray-500">Medical Info:</span>
-                  <span className="ml-2 font-medium">{participant.medical_information}</span>
+                  <span className="text-gray-700 font-medium">Medical Info:</span>
+                  <span className="ml-2 text-gray-900 font-semibold">{participant.medical_information}</span>
                 </div>
               )}
               {participant.medicines_using && (
                 <div>
-                  <span className="text-gray-500">Medicines:</span>
-                  <span className="ml-2 font-medium">{participant.medicines_using}</span>
+                  <span className="text-gray-700 font-medium">Medicines:</span>
+                  <span className="ml-2 text-gray-900 font-semibold">{participant.medicines_using}</span>
                 </div>
               )}
             </div>
