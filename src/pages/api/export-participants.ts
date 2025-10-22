@@ -1,5 +1,6 @@
 import { ParticipantService } from "@/lib/services/participant";
 import { validateUserTokenResponse } from "@/lib/api";
+import { addCacheHeaders } from "@/lib/cache-utils";
 import * as XLSX from 'xlsx';
 
 export async function GET({ locals, request, url }) {
@@ -39,13 +40,13 @@ export async function GET({ locals, request, url }) {
       
       const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
       
-      return new Response(excelBuffer, {
+      const response = new Response(excelBuffer, {
         headers: {
           'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
           'Content-Disposition': `attachment; filename="participants_event_${eventId}.xlsx"`,
-          'Cache-Control': 'no-cache',
         },
       });
+      return addCacheHeaders(response, { noCache: true });
     } else {
       // Create CSV file
       if (participants.length === 0) {
@@ -75,13 +76,13 @@ export async function GET({ locals, request, url }) {
         )
       ].join('\n');
 
-      return new Response(csvContent, {
+      const response = new Response(csvContent, {
         headers: {
           'Content-Type': 'text/csv',
           'Content-Disposition': `attachment; filename="participants_event_${eventId}.csv"`,
-          'Cache-Control': 'no-cache',
         },
       });
+      return addCacheHeaders(response, { noCache: true });
     }
 
   } catch (error) {

@@ -1,6 +1,7 @@
 import { EventService } from "@/lib/services/event";
 import { ParticipantService } from "@/lib/services/participant";
 import { validateUserTokenResponse } from "@/lib/api";
+import { createJsonResponse } from "@/lib/cache-utils";
 import * as XLSX from 'xlsx';
 
 // Helper function to map CSV/Excel row data to participant object
@@ -135,12 +136,13 @@ export async function GET({ locals, request }) {
     const eventService = new EventService(DB);
     const events = await eventService.getAll();
 
-    return Response.json({ events });
+    return createJsonResponse({ events }, 200, { noCache: true });
   } catch (error) {
     console.error("Error fetching events:", error);
-    return Response.json(
+    return createJsonResponse(
       { message: "Failed to fetch events" },
-      { status: 500 }
+      500,
+      { noCache: true }
     );
   }
 }
@@ -283,19 +285,20 @@ export async function POST({ locals, request }) {
       }
     }
 
-    return Response.json({
+    return createJsonResponse({
       success: true,
       message: `Event created successfully${participantCount > 0 ? ` with ${participantCount} participants` : ''}`,
       eventId: eventResult.eventId,
       participantCount,
       participantErrors: participantErrors.length > 0 ? participantErrors : undefined
-    });
+    }, 200, { noCache: true });
 
   } catch (error) {
     console.error("Error creating event:", error);
-    return Response.json(
+    return createJsonResponse(
       { message: "Failed to create event" },
-      { status: 500 }
+      500,
+      { noCache: true }
     );
   }
 }
