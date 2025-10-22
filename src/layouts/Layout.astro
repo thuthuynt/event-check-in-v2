@@ -118,6 +118,65 @@ const apiTokenSet = API_TOKEN && API_TOKEN !== '';
     }
     
     // PWA install functionality removed
+    
+    // Refresh button functionality
+    function setupRefreshButton() {
+      const refreshButton = document.getElementById('refresh-app-button');
+      if (refreshButton) {
+        refreshButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Refresh button clicked!');
+          
+          // Show visual feedback
+          const button = e.currentTarget;
+          const originalHTML = button.innerHTML;
+          button.innerHTML = '<svg class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+          button.disabled = true;
+          
+          // Clear all caches and force refresh
+          console.log('Clearing caches...');
+          
+          // Clear localStorage cache version
+          localStorage.removeItem('app_cache_version');
+          localStorage.setItem('force_refresh', 'true');
+          
+          // Clear service worker caches
+          if ('caches' in window) {
+            caches.keys().then(function(cacheNames) {
+              console.log('Found caches:', cacheNames);
+              return Promise.all(
+                cacheNames.map(function(cacheName) {
+                  console.log('Deleting cache:', cacheName);
+                  return caches.delete(cacheName);
+                })
+              );
+            }).then(function() {
+              console.log('All caches cleared, reloading...');
+              // Reload the page after clearing caches
+              window.location.reload(true);
+            }).catch(function(error) {
+              console.error('Error clearing caches:', error);
+              // Still reload even if cache clearing fails
+              window.location.reload(true);
+            });
+          } else {
+            console.log('No caches API, just reloading...');
+            // Fallback: just reload
+            window.location.reload(true);
+          }
+        });
+        console.log('Refresh button event listener added');
+      } else {
+        console.log('Refresh button not found');
+      }
+    }
+    
+    // Setup refresh button when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupRefreshButton);
+    } else {
+      setupRefreshButton();
+    }
   </script>
 </html>
 

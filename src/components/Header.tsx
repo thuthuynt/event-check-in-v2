@@ -1,54 +1,10 @@
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 
 const links = [
   // Removed Events link as requested
 ];
 
 export function Header({ currentPath }: { currentPath: string }) {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const handleRefresh = () => {
-    console.log('Refresh button clicked!');
-    setIsRefreshing(true);
-    
-    // Clear all caches and force refresh
-    if (typeof window !== 'undefined') {
-      console.log('Clearing caches...');
-      
-      // Clear localStorage cache version
-      localStorage.removeItem('app_cache_version');
-      localStorage.setItem('force_refresh', 'true');
-      
-      // Clear service worker caches
-      if ('caches' in window) {
-        caches.keys().then(function(cacheNames) {
-          console.log('Found caches:', cacheNames);
-          return Promise.all(
-            cacheNames.map(function(cacheName) {
-              console.log('Deleting cache:', cacheName);
-              return caches.delete(cacheName);
-            })
-          );
-        }).then(function() {
-          console.log('All caches cleared, reloading...');
-          // Reload the page after clearing caches
-          window.location.reload(true);
-        }).catch(function(error) {
-          console.error('Error clearing caches:', error);
-          // Still reload even if cache clearing fails
-          window.location.reload(true);
-        });
-      } else {
-        console.log('No caches API, just reloading...');
-        // Fallback: just reload
-        window.location.reload(true);
-      }
-    } else {
-      console.log('Window not available, just reloading...');
-      window.location.reload(true);
-    }
-  };
 
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
@@ -92,21 +48,14 @@ export function Header({ currentPath }: { currentPath: string }) {
           <div className="flex items-center space-x-2">
             {/* Refresh Button for Mobile/Tablet */}
             <button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="touch-target p-2 rounded-md text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              id="refresh-app-button"
+              className="touch-target p-2 rounded-md text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
               aria-label="Refresh App"
               title="Refresh App"
             >
-              {isRefreshing ? (
-                <svg className="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              )}
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
             </button>
             
             {/* Mobile Menu Button */}
